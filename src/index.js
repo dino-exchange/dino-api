@@ -84,21 +84,42 @@ async function getTVL() {
 }
 
 // Basic info for landing page
+let infoCache = "";
+let infoCacheTime = 0;
+
 async function getInfo() {
-    let info = {};
-    info.tvl = await getTVL();
-    info.pool = [{
-        name: "DINO Pool",
-        tvl: 1234,
-        apy: 123,
-        url: "https://app.dino.exchange/stake"
-    },{
-        name: "DINO-BNB Pool",
-        tvl: 1234,
-        apy: 123,
-        url: "https://app.dino.exchange/yield"
-    }];
-    return JSON.stringify(info);
+    if (Date.now() - infoCacheTime > 300000) {
+        console.log("getInfo update cache");
+        try {
+            const web3 = new Web3("https://bsc-dataseed.binance.org");
+            const dinoContract = new web3.eth.Contract(tokenAbi, dinoTokenAddress);
+            const busdContract = new web3.eth.Contract(tokenAbi, busdAddress);
+
+            const poolDinoBalance = web3.utils.toBN(await dinoContract.methods.balanceOf(poolAddress).call());
+            const poolBusdBalance = web3.utils.toBN(await busdContract.methods.balanceOf(poolAddress).call());
+            const vaultDinoBalance = web3.utils.toBN(await dinoContract.methods.balanceOf(vaultAddress).call());
+            const tvl = vaultDinoBalance.mul(poolBusdBalance).div(poolDinoBalance).add(poolBusdBalance).add(poolBusdBalance);
+            const vaultTvl = vaultDinoBalance.mul(poolBusdBalance).div(poolDinoBalance);
+            const poolTvl = poolBusdBalance.add(poolBusdBalance);
+            
+            let info = {};
+            info.tvl = web3.utils.fromWei(tvl, "ether");
+            info.pool = [{
+                name: "DINO Vault",
+                tvl: web3.utils.fromWei(vaultTvl, "ether"),
+                apy: 79,
+                url: "https://app.dino.exchange/stake"
+            }, {
+                name: "DINO-BNB Pool",
+                tvl: web3.utils.fromWei(poolTvl, "ether"),
+                apy: 319,
+                url: "https://app.dino.exchange/yield"
+            }];
+            infoCache = JSON.stringify(info);
+            infoCacheTime = Date.now();
+        } catch (err) { console.log("getInfo error:", err) }
+    }
+    return infoCache;
 }
 
 // Rest API
