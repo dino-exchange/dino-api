@@ -83,6 +83,24 @@ async function getTVL() {
     return tvlCache;
 }
 
+// Basic info for landing page
+async function getInfo() {
+    let info = {};
+    info.tvl = await getTVL();
+    info.pool = [{
+        name: "DINO Pool",
+        tvl: 1234,
+        apy: 123,
+        url: "https://app.dino.exchange/stake"
+    },{
+        name: "DINO-BNB Pool",
+        tvl: 1234,
+        apy: 123,
+        url: "https://app.dino.exchange/yield"
+    }];
+    return JSON.stringify(info);
+}
+
 // Rest API
 const app = express();
 
@@ -99,6 +117,12 @@ app.get("/supply", async function (req, res) {
 app.get("/tvl", async function (req, res) {
     res.setHeader('content-type', 'text/plain');
     res.send(await getTVL());
+});
+
+app.get("/info", async function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('content-type', 'application/json');
+    res.send(await getInfo());
 });
 
 app.listen(1786);
