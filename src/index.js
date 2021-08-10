@@ -8,7 +8,8 @@ const dinoTokenAddress = "0xf317932ee2C30fa5d0E14416775977801734812D";
 // Calculate Circulating Supply
 const lockedAddress = [
     "0x29e87ebae96960768153ff33610420fe5f94d6df",
-    "0xbe85104b960619debcdda195e12562e33282d2a7"
+    "0xbe85104b960619debcdda195e12562e33282d2a7",
+    "0x000000000000000000000000000000000000dead",
 ];
 let supplyCache = "5826697.812793015194880719";
 let supplyCacheTime = 0;
@@ -33,7 +34,8 @@ async function getCirculatingSupply() {
 
 // Calculate Total Supply
 const burnedAddress = [
-    "0x0000000000000000000000000000000000000000"
+    "0x0000000000000000000000000000000000000000",
+    "0x000000000000000000000000000000000000dead",
 ];
 let totalSupplyCache = "200000000";
 let totalSupplyCacheTime = 0;
