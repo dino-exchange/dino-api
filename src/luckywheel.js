@@ -13,7 +13,7 @@ const userHistory = {};
 
 function updateCache(data) {
     if (lastBlock < data.blockNumber) lastBlock = data.blockNumber;
-    const wallet = data.userAddress;
+    const wallet = data.wallet;
     const reward = parseInt(data.reward);
 
     if (!totalReward[wallet]) totalReward[wallet] = { spinCount: 0, amount: 0 };
@@ -21,7 +21,7 @@ function updateCache(data) {
     totalReward[wallet].spinCount++;
 
     if (!userHistory[wallet]) userHistory[wallet] = [];
-    userHistory[wallet].push({ reward, claimStatus: 3 })
+    userHistory[wallet].push({ reward, claimStatus: 3, spinTime: data.spinTime });
 }
 
 function getTopReward(limit = 5) {
@@ -47,8 +47,9 @@ function loadLog() {
 
 async function writeLog(web3, log) {
     const reward = web3.utils.fromWei(web3.utils.toBN(log.data), "ether");
-    const userAddress = "0x" + log.topics[1].substr(26);
-    const data = { blockNumber: log.blockNumber, transactionHash: log.transactionHash, userAddress, reward };
+    const wallet = "0x" + log.topics[1].substr(26);
+    const spinTime = (await web3.eth.getBlock(log.blockNumber)).timestamp
+    const data = { blockNumber: log.blockNumber, transactionHash: log.transactionHash, wallet, reward, spinTime };
     spinLog.write(JSON.stringify(data) + "\n");
     updateCache(data);
 }
