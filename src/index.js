@@ -1,5 +1,6 @@
 const express = require("express");
 const Web3 = require("web3");
+const { getTopReward, getUserHistory } = require("./luckywheel");
 const contractInfo = require('./export.json');
 
 const tokenAbi = contractInfo.contracts.DinoToken.abi;
@@ -103,7 +104,7 @@ async function getInfo() {
             const tvl = vaultDinoBalance.mul(poolBusdBalance).div(poolDinoBalance).add(poolBusdBalance).add(poolBusdBalance);
             const vaultTvl = vaultDinoBalance.mul(poolBusdBalance).div(poolDinoBalance);
             const poolTvl = poolBusdBalance.add(poolBusdBalance);
-            
+
             let info = {};
             info.tvl = web3.utils.fromWei(tvl, "ether");
             info.pool = [{
@@ -146,6 +147,18 @@ app.get("/info", async function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('content-type', 'application/json');
     res.send(await getInfo());
+});
+
+app.get("/spin/top", async function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('content-type', 'application/json');
+    res.send(getTopReward());
+});
+
+app.get("/spin/history", async function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('content-type', 'application/json');
+    res.send(getUserHistory(req.query.wallet));
 });
 
 app.listen(1786);
