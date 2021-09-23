@@ -1,13 +1,26 @@
 const fs = require("fs");
 const Web3 = require("web3");
 
-const luckywheelAddress = "0x9A0d25f33cd4cE3fA63Fcc18BC2E47480480C714";
-const spinTopic = "0xaa8757bb29f85b111680a82ef80931befbf95af7736e6996c8435b9f9d8bdeb3";
+const TESTNET = {
+    rpcUrl: "https://data-seed-prebsc-1-s1.binance.org:8545",
+    luckywheelAddress: "0x9A0d25f33cd4cE3fA63Fcc18BC2E47480480C714",
+    spinTopic: "0xaa8757bb29f85b111680a82ef80931befbf95af7736e6996c8435b9f9d8bdeb3",
+    logFile: "data/spin_testnet.log",
+    lastBlock: 11983605
+}
+const MAINNET = {
+    rpcUrl: "https://bsc-dataseed.binance.org",
+    luckywheelAddress: "0x75903a9ee7cb6bf4658c01556f49a3d8c13b8785",
+    spinTopic: "0xaa8757bb29f85b111680a82ef80931befbf95af7736e6996c8435b9f9d8bdeb3",
+    logFile: "data/spin_mainnet.log",
+    lastBlock: 11159106
+}
 
-const logFile = "data/spin.log";
-const spinLog = fs.createWriteStream("data/spin.log", { flags: "a" });
+const config = MAINNET;
+const logFile = config.logFile;
+const spinLog = fs.createWriteStream(config.logFile, { flags: "a" });
 
-let lastBlock = 11983605;
+let lastBlock = config.lastBlock;
 const totalReward = {};
 const userHistory = {};
 
@@ -55,7 +68,7 @@ async function writeLog(web3, log) {
 }
 
 async function crawlLogs() {
-    const web3 = new Web3("https://data-seed-prebsc-1-s1.binance.org:8545");
+    const web3 = new Web3(config.rpcUrl);
     const fromBlock = lastBlock + 1;
     let toBlock = await web3.eth.getBlockNumber();
     if (toBlock - fromBlock > 5000) toBlock = fromBlock + 5000;
@@ -63,8 +76,8 @@ async function crawlLogs() {
     const pastLogs = await web3.eth.getPastLogs({
         fromBlock,
         toBlock,
-        address: luckywheelAddress,
-        topics: [spinTopic],
+        address: config.luckywheelAddress,
+        topics: [config.spinTopic],
     })
     for (let log of pastLogs) {
         await writeLog(web3, log).catch(console.log);

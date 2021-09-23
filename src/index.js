@@ -1,4 +1,5 @@
 const express = require("express");
+const axios = require("axios");
 const Web3 = require("web3");
 const { getTopReward, getUserHistory } = require("./luckywheel");
 const contractInfo = require('./export.json');
@@ -141,6 +142,29 @@ app.get("/supply", async function (req, res) {
 app.get("/tvl", async function (req, res) {
     res.setHeader('content-type', 'text/plain');
     res.send(await getTVL());
+});
+
+app.get("/volume", async function (req, res) {
+    res.setHeader('content-type', 'text/plain');
+    let query = `
+query overviewCharts($startTime: Int!, $skip: Int!) {
+    pancakeDayDatas(first: 1000, skip: $skip, where: { date_gt: $startTime }, orderBy: date, orderDirection: asc) {
+        date
+        dailyVolumeUSD
+        totalLiquidityUSD
+    }
+}
+`;
+    let variables = { startTime: 1619136000, skip: 0 };
+    const a = await axios({
+        url: "https://bsc.streamingfast.io/subgraphs/name/pancakeswap/exchange-v2",
+        method: 'post',
+        data: { query, variables },
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    res.send(a);
 });
 
 app.get("/info", async function (req, res) {
