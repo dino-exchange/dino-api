@@ -10,7 +10,7 @@ const TESTNET = {
 }
 const MAINNET = {
     rpcUrl: "https://bsc-dataseed.binance.org",
-    luckywheelAddress: "0x75903a9ee7cb6bf4658c01556f49a3d8c13b8785",
+    luckywheelAddress: "0x5367F50aAdC858985281472aB0550Ca978496eE7",
     spinTopic: "0xaa8757bb29f85b111680a82ef80931befbf95af7736e6996c8435b9f9d8bdeb3",
     logFile: "data/spin_mainnet.log",
     lastBlock: 11159106
